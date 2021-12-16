@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
+import org.springframework.jdbc.core.JdbcTemplate;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 
@@ -66,4 +67,12 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
 
     <T> List<T> findProjectionsByUsername(@Param("username") String username, Class<T> type);
 
+    @Query(value = "select * from member where username = ?", nativeQuery = true)
+    Member findByNativeQuery(String username);
+
+    @Query(value = "select m.member_id as id, m.username, t.name as teamName " +
+            "from member m left join team t",
+            countQuery = "select count(*) from member",
+            nativeQuery = true)
+    Page<MemberProjection> findByNativeProjection(Pageable pageable);
 }
